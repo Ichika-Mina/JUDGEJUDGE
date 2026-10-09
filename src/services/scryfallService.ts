@@ -1,4 +1,5 @@
 import { CardData, OFFLINE_CARDS_DATABASE } from '../data/offlineCards';
+import { getCardFromIndexedDB } from './offlineStorageService';
 
 const STORAGE_CACHE_KEY = 'judge_gemma_cards_cache_v1';
 
@@ -37,6 +38,16 @@ export async function searchCardByName(cardName: string): Promise<CardData | nul
   );
   if (offlineMatch) {
     return offlineMatch;
+  }
+
+  // 2b. Check IndexedDB imported card database
+  try {
+    const idbMatch = await getCardFromIndexedDB(query);
+    if (idbMatch) {
+      return idbMatch;
+    }
+  } catch {
+    // continue
   }
 
   // 3. If online, fetch from Scryfall API

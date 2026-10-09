@@ -1,8 +1,8 @@
 import React from 'react';
-import { Shield, Sparkles, Wifi, WifiOff, Layers, Layers2, BookOpen, Search, HelpCircle } from 'lucide-react';
+import { Shield, Sparkles, Wifi, WifiOff, Layers, Layers2, BookOpen, Search, Database, HelpCircle } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 
-export type ActiveTab = 'chat' | 'layers' | 'stack' | 'rules' | 'cards';
+export type ActiveTab = 'chat' | 'layers' | 'stack' | 'rules' | 'cards' | 'data';
 
 interface NavbarProps {
   activeTab: ActiveTab;
@@ -95,6 +95,16 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <Search className="w-3.5 h-3.5" /> Card Oracle
           </button>
+          <button
+            onClick={() => setActiveTab('data')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
+              activeTab === 'data'
+                ? 'bg-amber-500 text-slate-950 font-semibold shadow-xs'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Database className="w-3.5 h-3.5" /> Offline DB
+          </button>
         </nav>
 
         {/* Right Action Bar */}
@@ -172,6 +182,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           }`}
         >
           🃏 Cards
+        </button>
+        <button
+          onClick={() => setActiveTab('data')}
+          className={`px-2.5 py-1 text-xs rounded-md font-medium whitespace-nowrap ${
+            activeTab === 'data' ? 'bg-amber-500 text-slate-950 font-bold' : 'text-slate-300'
+          }`}
+        >
+          💾 Offline DB
         </button>
       </div>
     </header>

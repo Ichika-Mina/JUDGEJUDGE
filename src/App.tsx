@@ -5,6 +5,7 @@ import { LayerSimulator } from './components/LayerSimulator';
 import { StackVisualizer } from './components/StackVisualizer';
 import { RulesBrowser } from './components/RulesBrowser';
 import { CardInspector } from './components/CardInspector';
+import { OfflineDataManager } from './components/OfflineDataManager';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 
@@ -59,6 +60,8 @@ export const App: React.FC = () => {
         {activeTab === 'cards' && (
           <CardInspector onAskAboutCard={handleAskAboutCard} />
         )}
+
+        {activeTab === 'data' && <OfflineDataManager />}
       </main>
 
       {/* Offline Toast Indicator */}

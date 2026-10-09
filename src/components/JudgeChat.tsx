@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { askJudge, JudgeResponse } from '../services/judgeService';
 import { FAMOUS_INTERACTIONS } from '../data/famousInteractions';
+import { FormattedJudgeAnswer } from './FormattedJudgeAnswer';
 import { Send, Mic, MicOff, Copy, Check, Sparkles, BookOpen, Layers, RefreshCw, AlertCircle, Tag, X } from 'lucide-react';
 
 interface ChatMessage {
@@ -30,12 +31,16 @@ export const JudgeChat: React.FC<JudgeChatProps> = ({
     {
       id: 'welcome',
       role: 'judge',
-      text: `### ⚖️ Greetings, Planeswalker
-I am **Judge Gemma**, your Level 3 Magic: The Gathering Judge and rules arbiter.
+      text: `**Direct Ruling:**
+Welcome, Planeswalker! I am Judge Gemma, your Level 3 MTG rules arbiter. Ask any complex interaction, continuous layer breakdown, or stack dispute for an immediate ruling.
 
-Ask me any complex rules interaction, continuous effects layers question, stack ordering scenario, or state-based action question. I provide real-time rulings backed by the official **MTG Comprehensive Rules**.
+**Step-by-Step Rules Breakdown:**
+1. All rulings are grounded in the official Comprehensive Rules with hoverable citations (e.g. CR 613, CR 117, CR 704).
+2. Hover over any rule citation badge to instantly inspect the exact official rule text.
+3. Switch between Online Gemma AI and 100% Offline Rules mode anytime.
 
-*You can use this app both online and completely offline during tournament play.*`,
+**Tournament Table Guidance:**
+Tap any famous interaction preset above or tag cards to simulate rulings on the fly.`,
       source: isOnline ? 'online_ai' : 'offline_rules_engine',
       rulesCited: ['CR 613', 'CR 117', 'CR 603', 'CR 614', 'CR 704'],
       timestamp: new Date().toLocaleTimeString(),
@@ -271,26 +276,15 @@ Ask me any complex rules interaction, continuous effects layers question, stack 
               )}
 
               {/* Message Content */}
-              <div className="prose prose-invert prose-sm max-w-none text-slate-200 leading-relaxed whitespace-pre-wrap">
-                {msg.text}
-              </div>
-
-              {/* Clickable Rule Citations */}
-              {msg.rulesCited && msg.rulesCited.length > 0 && (
-                <div className="mt-3 pt-2.5 border-t border-slate-800 flex flex-wrap items-center gap-1.5">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 flex items-center gap-1">
-                    <BookOpen className="w-3 h-3 text-amber-400" /> Cited Rules:
-                  </span>
-                  {msg.rulesCited.map((rule) => (
-                    <button
-                      key={rule}
-                      onClick={() => onNavigateToRule && onNavigateToRule(rule.replace(/CR\s*/i, ''))}
-                      className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-800 hover:bg-amber-500/20 text-amber-400 border border-slate-700 hover:border-amber-500/40 transition cursor-pointer"
-                      title="View full rule text in Rulebook"
-                    >
-                      {rule}
-                    </button>
-                  ))}
+              {msg.role === 'judge' ? (
+                <FormattedJudgeAnswer
+                  rawText={msg.text}
+                  rulesCited={msg.rulesCited}
+                  onNavigateToRule={onNavigateToRule}
+                />
+              ) : (
+                <div className="text-sm font-medium text-slate-950 leading-relaxed whitespace-pre-wrap">
+                  {msg.text}
                 </div>
               )}
             </div>

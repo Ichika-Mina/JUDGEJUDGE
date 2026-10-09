@@ -135,11 +135,74 @@ export const MTG_RULES_CORPUS: RuleEntry[] = [
     keywords: ['protection', 'debt', 'damage', 'equip', 'block', 'target', 'true-name nemesis'],
   },
   {
-    number: '702.2',
-    title: 'Deathtouch & Trample Interaction',
+    number: '305.7',
+    title: 'Setting Basic Land Types',
+    category: 'Card Types & Subtypes',
+    summary: 'If an effect sets a land’s subtype to one or more basic land types, the land loses all previous land types and abilities in its text box. It retains any non-land card types and supertypes, and gains the intrinsic mana ability of the basic land types.',
+    keywords: ['blood moon', 'mountain', 'basic land type', 'lose abilities'],
+  },
+  {
+    number: '714.4',
+    title: 'Sagas & Chapter Abilities',
+    category: 'Additional Rules',
+    summary: 'If a Saga permanent has a number of lore counters greater than or equal to its final chapter number (the highest chapter symbol number printed on it) and is not the source of a chapter ability on the stack, its controller sacrifices it (CR 704.5s). If it loses its chapter abilities, its final chapter number is 0.',
+    keywords: ['saga', 'lore counter', 'sacrifice', 'chapter', 'urza\'s saga'],
+  },
+  {
+    number: '606.4',
+    title: 'Loyalty Abilities & Costs',
+    category: 'Planeswalkers & Loyalty',
+    summary: 'The cost to activate a loyalty ability is represented by a loyalty symbol with a plus (+N) or minus (-N). Adding or removing loyalty counters is the cost of activation, not an effect. Effects that double counters from effects (like Doubling Season) do not double activation costs.',
+    keywords: ['loyalty', 'planeswalker', 'cost', 'doubling season', 'activation cost'],
+  },
+  {
+    number: '307.1',
+    title: 'Sorcery Timing Restrictions',
+    category: 'Timing & Priority',
+    summary: 'A player who has priority may cast a sorcery card from their hand during a main phase of their turn when the stack is empty. "Any time you could cast a sorcery" requires that it is your main phase, the stack is empty, and you have priority.',
+    keywords: ['sorcery timing', 'teferi', 'main phase', 'empty stack'],
+  },
+  {
+    number: '702.85',
+    title: 'Cascade',
     category: 'Keyword Abilities',
-    summary: 'Any amount of damage dealt by a source with deathtouch is lethal damage. When combined with Trample, the attacking creature only needs to assign 1 point of damage to each blocking creature, and can trample the rest to the defending player or planeswalker.',
-    keywords: ['deathtouch', 'trample', 'combat damage', 'lethal damage assignment'],
+    summary: 'When you cast a spell with cascade, exile cards from the top of your library until you exile a nonland card that costs less. You may cast it without paying its mana cost. Because this cast occurs while the cascade trigger is on the stack, restrictions like Teferi, Time Raveler prevent casting.',
+    keywords: ['cascade', 'shardless agent', 'living end', 'teferi'],
+  },
+  {
+    number: '702.62',
+    title: 'Suspend',
+    category: 'Keyword Abilities',
+    summary: 'Suspend is a special action. When the last time counter is removed from a suspended card, its triggered ability triggers to cast the card without paying its mana cost. If an opponent controls Teferi, Time Raveler, it cannot be cast during upkeep.',
+    keywords: ['suspend', 'time counter', 'teferi'],
+  },
+  {
+    number: '121.2',
+    title: 'Drawing Multiple Cards',
+    category: 'Game Actions',
+    summary: 'Cards drawn as part of a single instruction (e.g. "draw three cards") are drawn one by one. Replacement effects (like Chains of Mephistopheles) apply to each individual draw separately.',
+    keywords: ['draw cards', 'brainstorm', 'chains of mephistopheles', 'sequential draw'],
+  },
+  {
+    number: '101.2',
+    title: 'Can’t Beats Can',
+    category: 'General Principles',
+    summary: 'When a rule or effect allows or directs something to happen, and another effect states that it can’t happen, the "can’t" effect takes precedence.',
+    keywords: ['can\'t beats can', 'restriction', 'permission'],
+  },
+  {
+    number: '205.4b',
+    title: 'Basic Land Types & Supertype',
+    category: 'Card Types & Subtypes',
+    summary: 'An effect that adds basic land types to a land does not make that land basic. A nonbasic land given basic land types (e.g. by Dryad of the Ilysian Grove) remains nonbasic and is affected by Blood Moon.',
+    keywords: ['basic', 'nonbasic', 'dryad of the ilysian grove', 'blood moon'],
+  },
+  {
+    number: '604.3',
+    title: 'Characteristic-Defining Abilities (CDA)',
+    category: 'Spells & Abilities',
+    summary: 'A static ability that defines an object’s colors, subtypes, power, or toughness. Applies in Layer 7a. It functions in all zones. Abilities that modify power/toughness (like Death’s Shadow -X/-X) are not CDAs.',
+    keywords: ['cda', 'characteristic-defining', 'tarmogoyf', 'death\'s shadow'],
   },
 ];
 
@@ -156,3 +219,84 @@ export const GLOSSARY_TERMS: { term: string; definition: string; rule: string }[
   { term: 'State-Based Action (SBA)', definition: 'Automatic game engine checks that clean up illegal board states (0 life, 0 toughness, legend rule, sagas) before priority is given.', rule: 'CR 704' },
   { term: 'Timestamp', definition: 'The chronological order in which permanents entered the battlefield or continuous effects were generated. Used as a tiebreaker within the same layer.', rule: 'CR 613.7' },
 ];
+
+export interface RuleSourceDetail {
+  number: string;
+  title: string;
+  category: string;
+  text: string;
+}
+
+export function lookupRuleSource(citation: string): RuleSourceDetail | null {
+  const clean = citation.replace(/^CR\s*/i, '').trim();
+
+  // 1. Search subrules directly
+  for (const rule of MTG_RULES_CORPUS) {
+    if (rule.subrules) {
+      for (const sub of rule.subrules) {
+        if (sub.number.toLowerCase() === clean.toLowerCase()) {
+          return {
+            number: sub.number,
+            title: rule.title,
+            category: rule.category,
+            text: sub.text,
+          };
+        }
+      }
+    }
+  }
+
+  // 2. Search main rule entries
+  for (const rule of MTG_RULES_CORPUS) {
+    if (rule.number.toLowerCase() === clean.toLowerCase()) {
+      return {
+        number: rule.number,
+        title: rule.title,
+        category: rule.category,
+        text: rule.summary,
+      };
+    }
+  }
+
+  // 3. Search prefix match (e.g. "613.1" in rule "613")
+  for (const rule of MTG_RULES_CORPUS) {
+    if (clean.startsWith(rule.number) || rule.number.startsWith(clean.split('.')[0])) {
+      // Find closest subrule if any
+      const matchingSub = rule.subrules?.find((s) => s.number.toLowerCase().startsWith(clean.toLowerCase()));
+      if (matchingSub) {
+        return {
+          number: matchingSub.number,
+          title: rule.title,
+          category: rule.category,
+          text: matchingSub.text,
+        };
+      }
+      return {
+        number: rule.number,
+        title: rule.title,
+        category: rule.category,
+        text: rule.summary,
+      };
+    }
+  }
+
+  // 4. Check glossary
+  const glossary = GLOSSARY_TERMS.find(
+    (g) => g.rule.replace(/^CR\s*/i, '').toLowerCase() === clean.toLowerCase() || g.term.toLowerCase() === clean.toLowerCase()
+  );
+  if (glossary) {
+    return {
+      number: glossary.rule,
+      title: glossary.term,
+      category: 'Judge Glossary',
+      text: glossary.definition,
+    };
+  }
+
+  return {
+    number: `CR ${clean}`,
+    title: 'Comprehensive Rule',
+    category: 'Official Rules',
+    text: `Rule ${clean} of the official Magic: The Gathering Comprehensive Rules governing tournament and casual play.`,
+  };
+}

@@ -6,18 +6,3 @@ coverage/
 *.log
 .env*
 !.env.example
-
-.env
-.venv/
-*.db
-
-# Python
-__pycache__/
-*.pyc
-.venv/
-venv/
-env/
-
-# OS
-.DS_Store
-
