@@ -1,6 +1,6 @@
 {
   "name": "Judge Gemma - MTG Rules Arbiter & Interaction Engine",
   "description": "An online/offline AI Magic: The Gathering Level 3 Judge agent and rules engine. Real-time clarification for complex card interactions, continuous layer breakdowns, stack simulation, and comprehensive rulebook citations.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["camera"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

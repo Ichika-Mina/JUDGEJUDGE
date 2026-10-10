@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { askJudge, JudgeResponse } from '../services/judgeService';
 import { FAMOUS_INTERACTIONS } from '../data/famousInteractions';
 import { FormattedJudgeAnswer } from './FormattedJudgeAnswer';
-import { Send, Mic, MicOff, Copy, Check, Sparkles, BookOpen, Layers, RefreshCw, AlertCircle, Tag, X } from 'lucide-react';
+import { Send, Mic, MicOff, Copy, Check, Sparkles, BookOpen, Layers, RefreshCw, AlertCircle, Tag, X, Camera } from 'lucide-react';
 
 interface ChatMessage {
   id: string;
@@ -19,6 +19,7 @@ interface JudgeChatProps {
   manualOffline: boolean;
   onNavigateToRule?: (ruleNumber: string) => void;
   onNavigateToLayer?: () => void;
+  onNavigateToScan?: () => void;
 }
 
 export const JudgeChat: React.FC<JudgeChatProps> = ({
@@ -26,6 +27,7 @@ export const JudgeChat: React.FC<JudgeChatProps> = ({
   manualOffline,
   onNavigateToRule,
   onNavigateToLayer,
+  onNavigateToScan,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -359,6 +361,18 @@ Tap any famous interaction preset above or tag cards to simulate rulings on the 
           />
 
           <div className="flex flex-col gap-1.5">
+            {/* Scan Card Camera Shortcut */}
+            {onNavigateToScan && (
+              <button
+                onClick={onNavigateToScan}
+                type="button"
+                className="p-2 rounded-xl border bg-slate-800/80 border-slate-700 text-amber-400 hover:text-amber-300 hover:bg-slate-700 transition cursor-pointer"
+                title="Scan card with camera to get rules"
+              >
+                <Camera className="w-4 h-4" />
+              </button>
+            )}
+
             {/* Voice Dictation Button */}
             <button
               onClick={toggleListening}

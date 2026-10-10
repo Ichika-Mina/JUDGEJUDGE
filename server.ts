@@ -138,6 +138,86 @@ app.get('/api/scryfall/search', async (req, res) => {
   }
 });
 
+// API: Visual Card Recognition & Rules Extraction
+app.post('/api/cards/scan', async (req, res) => {
+  try {
+    const { imageBase64, mimeType = 'image/jpeg' } = req.body;
+
+    if (!imageBase64 || typeof imageBase64 !== 'string') {
+      return res.status(400).json({ error: 'imageBase64 string is required' });
+    }
+
+    if (!aiClient) {
+      return res.status(503).json({
+        error: 'Gemini API key is not configured on the server. Camera recognition requires online model.',
+      });
+    }
+
+    // Strip data:image/...;base64, prefix if present
+    const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
+
+    const response = await aiClient.models.generateContent({
+      model: 'gemini-3.8-flash',
+      contents: [
+        {
+          role: 'user',
+          parts: [
+            {
+              inlineData: {
+                data: cleanBase64,
+                mimeType,
+              },
+            },
+            {
+              text: `You are Judge Gemma, a certified Level 3 Magic: The Gathering Judge and rules scholar.
+Examine this photograph of an MTG card. Identify the card precisely and return JSON with:
+{
+  "cardName": "Exact Card Name",
+  "manaCost": "{1}{U}{B} or empty if land",
+  "typeLine": "Card Type Line",
+  "oracleText": "Accurate current Oracle rules text",
+  "powerToughness": "P/T if creature, loyalty if planeswalker, or empty",
+  "rulesSummary": "Clear, concise 2-3 sentence explanation of how this card functions under the Comprehensive Rules.",
+  "rulesCited": ["CR 613.1d", "CR 704.5", "CR 603.3"],
+  "keyMechanics": ["Continuous Effects", "Triggered Abilities", "State-Based Actions"],
+  "judgeRulings": [
+    "Official tournament or Gatherer ruling for this card",
+    "Another key judge interaction ruling"
+  ],
+  "commonInteractions": [
+    "Common interactions with popular cards (e.g. Blood Moon, Humility, Dress Down, Doubling Season)"
+  ]
+}
+If the card cannot be recognized, set "cardName": "Unknown Card" and explain in "rulesSummary". Output strictly valid JSON without markdown fences.`,
+            },
+          ],
+        },
+      ],
+      config: {
+        responseMimeType: 'application/json',
+        temperature: 0.1,
+      },
+    });
+
+    const rawJson = response.text || '{}';
+    let parsedData: any = {};
+    try {
+      parsedData = JSON.parse(rawJson);
+    } catch {
+      parsedData = { cardName: 'Unknown Card', rulesSummary: rawJson };
+    }
+
+    return res.json({
+      success: true,
+      card: parsedData,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err: any) {
+    console.error('Error scanning card photo:', err);
+    return res.status(500).json({ error: err.message || 'Error scanning card image' });
+  }
+});
+
 // Setup Vite in Dev or Static files in Production
 async function startServer() {
   const isDev = process.env.NODE_ENV !== 'production';

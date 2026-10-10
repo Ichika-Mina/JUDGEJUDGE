@@ -5,6 +5,7 @@ import { LayerSimulator } from './components/LayerSimulator';
 import { StackVisualizer } from './components/StackVisualizer';
 import { RulesBrowser } from './components/RulesBrowser';
 import { CardInspector } from './components/CardInspector';
+import { CardScanner } from './components/CardScanner';
 import { OfflineDataManager } from './components/OfflineDataManager';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
@@ -46,6 +47,7 @@ export const App: React.FC = () => {
             manualOffline={manualOffline}
             onNavigateToRule={handleNavigateToRule}
             onNavigateToLayer={handleNavigateToLayer}
+            onNavigateToScan={() => setActiveTab('scan')}
           />
         )}
 
@@ -59,6 +61,16 @@ export const App: React.FC = () => {
 
         {activeTab === 'cards' && (
           <CardInspector onAskAboutCard={handleAskAboutCard} />
+        )}
+
+        {activeTab === 'scan' && (
+          <CardScanner
+            onAskJudge={handleAskAboutCard}
+            onNavigateToRule={handleNavigateToRule}
+            onInspectCard={(card) => {
+              setActiveTab('cards');
+            }}
+          />
         )}
 
         {activeTab === 'data' && <OfflineDataManager />}
